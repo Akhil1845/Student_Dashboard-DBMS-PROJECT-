@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faculty Dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+<link href="faculty_dashboard.css" rel="stylesheet">
+<style>
+    /* General cards and buttons */
+    .card { background:#fff; padding:15px; margin:10px 0; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+    .form-group{margin:10px 0;}
+    .form-group label{display:block;font-weight:bold;margin-bottom:5px;}
+    .form-group input, .form-group textarea, .form-group select{width:100%;padding:8px;border-radius:5px;border:1px solid #ccc;}
+    .btn-submit{background:#4CAF50;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;margin-top:10px;}
+    .btn-submit:hover{background:#45a049;}
+    .btn{background:#1976d2;color:white;border:none;padding:10px 20px;margin:5px;border-radius:5px;cursor:pointer;}
+    .btn:hover{background:#1565c0;}
+    .profile-card{background:#f9f9f9;padding:20px;border-radius:10px;margin:10px 0;}
+    .profile-item{margin:10px 0;}
+    .profile-item span:first-child{font-weight:bold;margin-right:5px;}
+
+    /* Test section styling */
+    #testsSection { display:none; }
+    .question-block { margin-bottom:15px; border:1px solid #ddd; padding:10px; border-radius:8px; background:#fdfdfd; }
+    .question-block label { font-weight:500; display:block; margin-bottom:5px; }
+    h2.section-title { margin-bottom:15px; color:#1976d2; }
+
+    /* Back button for navigation */
+    .back-btn {
+      display:block; width:max-content; margin:20px auto; padding:10px 20px; background:#1976d2; color:#fff; border-radius:8px; text-decoration:none; text-align:center;
+    }
+    .back-btn:hover { background:#145aab; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="menu">
+  <ul class="menu-content">
+    <li><a href="#" id="homeTabBtn"><span class="material-symbols-outlined">home</span><span>Home</span></a></li>
+    <li><a href="#" id="profileTabBtn"><span class="material-symbols-outlined">person</span><span>Profile</span></a></li>
+    <li><a href="faculty_students.html"><span class="material-symbols-outlined">groups</span><span>Students</span></a></li>
+    <li><a href="faculty_test.html" id="testsTabBtn"><span class="material-symbols-outlined">description</span><span>Tests</span></a></li>
+    <li><a href="#" id="hackathonTabBtn"><span class="material-symbols-outlined">emoji_events</span><span>Hackathons</span></a></li>
+    <li><a href="#" id="registrationsTabBtn"><span class="material-symbols-outlined">assignment_turned_in</span><span>Registrations</span></a></li>
+    <li><a href="#" onclick="logout()"><span class="material-symbols-outlined">logout</span><span>Logout</span></a></li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+
+  <!-- Home -->
+  <div id="homeSection">
+    <div class="home-hero">
+      <h1>Welcome, <span id="greetingName">Faculty</span> 👨‍🏫</h1>
+      <p class="hero-subtext">“Teaching is the one profession that creates all other professions.”</p>
+    </div>
+    <div class="home-quick-actions">
+      <button class="btn" id="homeStudentsBtn">Students</button>
+      <button class="btn" id="homeTestsBtn">Tests</button>
+      <button class="btn" id="homeHackathonsBtn">Hackathons</button>
+      <button class="btn" id="homeProfileBtn">Profile</button>
+      <button class="btn" id="homeRegistrationsBtn">Registrations</button>
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div class="profile-card" id="profileSection" style="display:none;">
+    <h2>Faculty Information</h2>
+    <div class="profile-item"><span>Name:</span> <span id="facultyName">Loading...</span></div>
+    <div class="profile-item"><span>Email:</span> <span id="facultyEmail">Loading...</span></div>
+    <div class="profile-item"><span>Department:</span> <span id="facultyDept">N/A</span></div>
+    <div class="profile-item"><span>Designation:</span> <span id="facultyDesignation">N/A</span></div>
+    <div class="profile-item"><span>Contact No:</span> <span id="facultyContact">N/A</span></div>
+    <button class="btn" id="updateProfileBtn">Update Profile</button>
+  </div>
+
+  <!-- Tests Section -->
+  <div id="testsSection">
+    <h2 class="section-title">Manage Tests</h2>
+
+    <!-- Create Test Form -->
+    <div class="card">
+      <h3>Create New Test</h3>
+      <form id="testForm">
+
+        <div class="form-group">
+          <label>Test Title</label>
+          <input type="text" id="testTitle" placeholder="Test Title" required>
+        </div>
+        <div class="form-group">
+          <label>Test Description</label>
+          <textarea id="testDescription" placeholder="Description" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Select Course</label>
+          <select id="courseSelect" required>
+            <option value="">--Select Course--</option>
+          </select>
+        </div>
+
+        <div id="questionsContainer"></div>
+        <button type="button" class="btn" id="addQuestionBtn">+ Add Question</button>
+        <br><br>
+        <button type="submit" class="btn-submit">Save Test</button>
+      </form>
+    </div>
+
+    <!-- Existing Tests -->
+    <div id="existingTests"></div>
+  </div>
+
+  <!-- Hackathons -->
+  <div id="hackathonSection" style="display:none;">
+    <h2>Your Hackathons</h2>
+    <div id="hackathonListFaculty"></div>
+  </div>
+
+  <!-- Registrations -->
+  <div id="registrationsSection" style="display:none;">
+    <h2>Student Registrations</h2>
+    <div id="registrationList"></div>
+  </div>
+
+</div>
+
+<script>
+const API_BASE = 'http://localhost:8081/faculty';
+const API_BASE_TEST = 'http://localhost:8081/tests';
+const API_BASE_COURSE = 'http://localhost:8081/courses';
+const API_BASE_HACK = 'http://localhost:8081/hackathons';
+const API_BASE_REG = 'http://localhost:8081/registrations';
+
+// ---------- Logout ----------
+function logout() {
+  localStorage.removeItem('loggedFaculty');
+  window.location.href = 'login_page.html';
+}
+
+// ---------- DOMContentLoaded ----------
+document.addEventListener('DOMContentLoaded', () => {
+  const stored = JSON.parse(localStorage.getItem('loggedFaculty'));
+  if (!stored || !stored.facultyId) {
+    logout();
+    return;
+  }
+
+  // Display name in greeting
+  document.getElementById('greetingName').innerText = stored.name?.split(' ')[0] || 'Faculty';
+
+  // Display profile info
+  document.getElementById('facultyName').innerText = stored.name || "N/A";
+  document.getElementById('facultyEmail').innerText = stored.email || "N/A";
+  document.getElementById('facultyDept').innerText = stored.department || "N/A";
+  document.getElementById('facultyDesignation').innerText = stored.designation || "N/A";
+  document.getElementById('facultyContact').innerText = stored.contactNo || "N/A";
+
+  // Load courses
+  loadCourses();
+});
+
+// ---------- Load Courses ----------
+async function loadCourses() {
+  try {
+    const res = await fetch(API_BASE_COURSE);
+    const courses = await res.json();
+    const courseSelect = document.getElementById('courseSelect');
+    courseSelect.innerHTML = '<option value="">--Select Course--</option>';
+    courses.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.courseId;
+      opt.text = c.name;
+      courseSelect.appendChild(opt);
+    });
+  } catch(err) { console.error(err); }
+}
+
+// ---------- Sections Navigation ----------
+function showSection(sectionId) {
+  ['homeSection','profileSection','testsSection','hackathonSection','registrationsSection']
+    .forEach(sec => document.getElementById(sec).style.display='none');
+  document.getElementById(sectionId).style.display='block';
+}
+
+// ---------- Load Profile ----------
+function loadProfile() {
+  const stored = JSON.parse(localStorage.getItem('loggedFaculty'));
+  if (!stored) return;
+  document.getElementById('facultyName').innerText = stored.name || "N/A";
+  document.getElementById('facultyEmail').innerText = stored.email || "N/A";
+  document.getElementById('facultyDept').innerText = stored.department || "N/A";
+  document.getElementById('facultyDesignation').innerText = stored.designation || "N/A";
+  document.getElementById('facultyContact').innerText = stored.contactNo || "N/A";
+  showSection('profileSection');
+}
+
+// ---------- Manage Tests ----------
+let questionCount = 0;
+const questionsContainer = document.getElementById('questionsContainer');
+document.getElementById('addQuestionBtn').addEventListener('click', () => {
+  questionCount++;
+  const block = document.createElement('div');
+  block.className = 'question-block';
+  block.innerHTML = `
+    <label>Question ${questionCount}</label>
+    <input type="text" placeholder="Enter question" required class="question-text">
+    <input type="text" placeholder="Option A" required class="option-A">
+    <input type="text" placeholder="Option B" required class="option-B">
+    <input type="text" placeholder="Option C" required class="option-C">
+    <input type="text" placeholder="Option D" required class="option-D">
+    <select class="correct-answer" required>
+      <option value="">Select Correct Answer</option>
+      <option value="A">A</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+    </select>
+  `;
+  questionsContainer.appendChild(block);
+});
+
+document.getElementById('testForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const stored = JSON.parse(localStorage.getItem('loggedFaculty'));
+  if (!stored) { logout(); return; }
+
+  const title = document.getElementById('testTitle').value;
+  const description = document.getElementById('testDescription').value;
+  const courseId = document.getElementById('courseSelect').value;
+  if(!courseId){ alert("Please select a course"); return; }
+
+  const questions = [];
+  document.querySelectorAll('.question-block').forEach(block => {
+    questions.push({
+      text: block.querySelector('.question-text').value,
+      options: {
+        A: block.querySelector('.option-A').value,
+        B: block.querySelector('.option-B').value,
+        C: block.querySelector('.option-C').value,
+        D: block.querySelector('.option-D').value
+      },
+      correct: block.querySelector('.correct-answer').value
+    });
+  });
+
+  const testData = {
+    title, description, questions,
+    facultyId: stored.facultyId,
+    course: { courseId: parseInt(courseId) }
+  };
+
+  try {
+    const res = await fetch(API_BASE_TEST, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(testData)
+    });
+    if(!res.ok) throw new Error();
+    alert('Test saved successfully!');
+    document.getElementById('testForm').reset();
+    questionsContainer.innerHTML = '';
+    questionCount = 0;
+    loadExistingTests();
+  } catch(err){ alert('Failed to save test'); console.error(err); }
+});
+
+// ---------- Load Existing Tests ----------
+async function loadExistingTests() {
+  const stored = JSON.parse(localStorage.getItem('loggedFaculty'));
+  if (!stored) return;
+  const facultyId = stored.facultyId;
+  const existingTestsDiv = document.getElementById('existingTests');
+  try {
+    const res = await fetch(`${API_BASE_TEST}?facultyId=${facultyId}`);
+    const tests = await res.json();
+    existingTestsDiv.innerHTML = '';
+    tests.forEach(t => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `<h3>${t.title}</h3>
+                       <p>${t.description || ''}</p>
+                       <p><strong>Questions:</strong> ${t.questions.length}</p>`;
+      existingTestsDiv.appendChild(div);
+    });
+  } catch(err){ console.error(err); }
+}
+
+// ---------- Navigation ----------
+document.getElementById('profileTabBtn').addEventListener('click', loadProfile);
+document.getElementById('homeTabBtn').addEventListener('click', () => showSection('homeSection'));
+document.getElementById('homeStudentsBtn').addEventListener('click', () => window.location.href='faculty_students.html');
+document.getElementById('homeTestsBtn').addEventListener('click', () => showSection('testsSection'));
+document.getElementById('testsTabBtn').addEventListener('click', () => showSection('testsSection'));
+document.getElementById('homeHackathonsBtn').addEventListener('click', () => showSection('hackathonSection'));
+document.getElementById('hackathonTabBtn').addEventListener('click', () => showSection('hackathonSection'));
+document.getElementById('registrationsTabBtn').addEventListener('click', () => showSection('registrationsSection'));
+document.getElementById('homeRegistrationsBtn').addEventListener('click', () => showSection('registrationsSection'));
+document.getElementById('homeProfileBtn').addEventListener('click', loadProfile);
+document.getElementById('updateProfileBtn').addEventListener('click', () => window.location.href='faculty_update_profile.html');
+
+</script>
+</body>
+</html>

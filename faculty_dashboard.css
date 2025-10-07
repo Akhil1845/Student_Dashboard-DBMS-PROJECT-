@@ -1,0 +1,159 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
+  display: flex;
+}
+
+/* Sidebar */
+.menu::-webkit-scrollbar {
+  display: none;
+}
+
+.menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 85px;
+  height: 100%;
+  transition: 0.3s;
+  overflow: hidden scroll;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 20px 20px 20px 0;
+  backdrop-filter: blur(6px);
+  box-shadow: 8px 0px 9px 0px #00000014;
+}
+
+.menu:hover {
+  width: 260px;
+}
+
+.menu:hover li span:nth-child(2) {
+  display: block;
+}
+
+.menu-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.menu-content li {
+  list-style: none;
+  border-radius: 0px 50px 50px 0;
+  transition: 0.3s;
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+.menu-content li:hover {
+  background: #7494ec;
+}
+
+.menu-content li span:nth-child(2) {
+  display: none;
+}
+
+.menu:hover .menu-content li span:nth-child(2) {
+  display: block;
+}
+
+.menu-content li:last-child {
+  margin-top: auto;
+}
+
+a {
+  text-decoration: none;
+  color: #333;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.material-symbols-outlined {
+  padding: 10px;
+  font-size: 25px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: #eee;
+  color: #333;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.menu-content li:hover .material-symbols-outlined {
+  background: #fff;
+  color: #7494ec;
+}
+
+/* New active sidebar menu item style */
+.menu-content li.active {
+  background: #222;
+}
+
+.menu-content li.active a {
+  color: #fff;
+}
+
+.menu-content li.active .material-symbols-outlined {
+  background: #fff;
+  color: #222;
+}
+
+/* Main Content */
+.main-content {
+  margin-left: 100px;
+  padding: 30px;
+  width: 100%;
+}
+
+.main-content h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.profile-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+}
+
+.profile-card h2 {
+  color: #7494ec;
+  margin-bottom: 15px;
+}
+
+.profile-item {
+  margin: 12px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.profile-item span {
+  font-weight: 600;
+  color: #555;
+}
+
+.btn {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: #7494ec;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #5a78d1;
+}

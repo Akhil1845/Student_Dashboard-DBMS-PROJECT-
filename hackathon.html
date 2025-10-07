@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hackathons | Student Dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+<link rel="stylesheet" href="hackathon.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="menu">
+  <ul class="menu-content">
+    <li><a href="student_dashboard.html"><span class="material-symbols-outlined">home</span><span>Home</span></a></li>
+    <li><a href="campus_connect.html"><span class="material-symbols-outlined">dashboard</span><span>Campus Connect</span></a></li>
+    <li><a href="#" id="profileTabBtn"><span class="material-symbols-outlined">person</span><span>Profile</span></a></li>
+    <li><a href="#" id="performanceTabBtn"><span class="material-symbols-outlined">analytics</span><span>Performance</span></a></li>
+    <li><a href="tests.html"><span class="material-symbols-outlined">description</span><span>Tests</span></a></li>
+    <li><a href="#" class="active"><span class="material-symbols-outlined">emoji_events</span><span>Hackathons</span></a></li>
+    <li><a href="#" onclick="logout()"><span class="material-symbols-outlined">logout</span><span>Logout</span></a></li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <h1>Hackathons</h1>
+  <p class="subheading">Participate and showcase your skills in exciting competitions!</p>
+
+  <div class="hackathon-cards">
+    <div class="card">
+      <h3>AI Hackathon 2025</h3>
+      <p>Registration Opens: Sep 15</p>
+      <p>Prize Pool: $2000</p>
+      <button class="btn">Register</button>
+    </div>
+    <div class="card">
+      <h3>Web Dev Challenge</h3>
+      <p>Registration Opens: Sep 20</p>
+      <p>Prize Pool: $1000</p>
+      <button class="btn">Register</button>
+    </div>
+    <div class="card">
+      <h3>Math & Algo Hackathon</h3>
+      <p>Registration Opens: Sep 25</p>
+      <p>Prize Pool: $1500</p>
+      <button class="btn">Register</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- LOGOUT ----------
+function logout() {
+  localStorage.removeItem('loggedStudent');
+  window.location.href = 'login_page.html';
+}
+
+// ---------- PROFILE REDIRECT ----------
+document.getElementById('profileTabBtn').addEventListener('click', () => {
+  window.location.href = 'student_dashboard.html';
+});
+
+// ---------- PERFORMANCE REDIRECT ----------
+document.getElementById('performanceTabBtn').addEventListener('click', () => {
+  window.location.href = 'performance.html';
+});
+</script>
+
+</body>
+</html>

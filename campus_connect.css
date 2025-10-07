@@ -1,0 +1,169 @@
+/* ==================== GLOBAL ==================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
+  display: flex;
+  overflow: hidden;
+}
+
+/* ==================== SIDEBAR ==================== */
+.menu::-webkit-scrollbar {
+  display: none;
+}
+
+.menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 85px;
+  height: 100vh;
+  transition: 0.3s;
+  overflow: hidden scroll;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 20px 20px 20px 0;
+  backdrop-filter: blur(6px);
+  box-shadow: 8px 0px 9px 0px #00000014;
+}
+
+.menu:hover {
+  width: 260px;
+}
+
+.menu:hover li span:nth-child(2) {
+  display: block;
+}
+
+.menu-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.menu-content li {
+  list-style: none;
+  border-radius: 0px 50px 50px 0;
+  transition: 0.3s;
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+.menu-content li:hover {
+  background: #7494ec;
+}
+
+.menu-content li span:nth-child(2) {
+  display: none;
+}
+
+.menu:hover .menu-content li span:nth-child(2) {
+  display: block;
+}
+
+.menu-content li:last-child {
+  margin-top: auto;
+}
+
+a {
+  text-decoration: none;
+  color: #333;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.material-symbols-outlined {
+  padding: 10px;
+  font-size: 25px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: #eee;
+  color: #333;
+  transition: 0.3s;
+}
+
+.menu-content li:hover .material-symbols-outlined {
+  background: #fff;
+  color: #7494ec;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+.main-content {
+  margin-left: 100px;
+  padding: 30px;
+  width: 100%;
+}
+
+.main-content h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.subtitle {
+  color: #333;
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  opacity: 0.8;
+}
+
+/* ==================== CARD SECTIONS ==================== */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+}
+
+.card {
+  background: #fff;
+  padding: 24px 26px;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.09);
+  min-width: 250px;
+  max-width: 360px;
+  margin-bottom: 0;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 32px rgba(0,0,0,0.15);
+}
+
+.card h2 {
+  color: #7494ec;
+  font-size: 1.28rem;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.card ul {
+  list-style-type: none;
+  padding: 0; margin: 0;
+}
+
+.card li {
+  font-size: 1.05rem;
+  padding: 7px 0;
+  color: #333;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 900px) {
+  .main-content {
+    margin-left: 0;
+    padding: 18px 8vw;
+  }
+  .menu {
+    width: 100vw;
+    position: relative;
+    box-shadow: none;
+    padding-top: 10px;
+  }
+}

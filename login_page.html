@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillBridge | Login & Signup</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="login_page.css">
+  <style>
+    .input-box { position: relative; }
+    .eye-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 20px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Login Form -->
+  <div class="form-box login">
+    <form id="loginForm">
+      <h1>Student / Faculty Login</h1>
+      <div class="input-box">
+        <input id="loginEmail" type="email" placeholder="Enter your Email" required>
+        <i class="bx bxs-user"></i>
+      </div>
+      <div class="input-box">
+        <input id="loginPassword" type="password" placeholder="Enter your Password" required>
+        <i class="bx bx-show eye-icon" id="toggleLoginPwd"></i>
+      </div>
+      <div class="forgot-link"><a href="#">Forgot Password?</a></div>
+      <button type="submit" class="btn">Login</button>
+    </form>
+  </div>
+
+  <!-- Registration Form -->
+  <div class="form-box register">
+    <form id="registerForm">
+      <h1>Create Your Account</h1>
+      <div class="input-box">
+        <input id="regName" type="text" placeholder="Full Name" required>
+        <i class="bx bxs-user"></i>
+      </div>
+      <div class="input-box">
+        <input id="regEmail" type="email" placeholder="Email Address" required>
+        <i class="bx bxs-envelope"></i>
+      </div>
+      <div class="input-box">
+        <input id="registerPassword" type="password" placeholder="Choose Password" required>
+        <i class="bx bx-show eye-icon" id="toggleRegisterPwd"></i>
+      </div>
+      <div class="input-box">
+        <select id="regRole" required>
+          <option value="" disabled selected>Select Role</option>
+          <option value="student">Student</option>
+          <option value="faculty">Faculty</option>
+        </select>
+      </div>
+      <button type="submit" class="btn">Register</button>
+    </form>
+  </div>
+
+  <!-- Toggle Panels -->
+  <div class="toggle-box">
+    <div class="toggle-panel toggle-left">
+      <h1>Welcome to SkillBridge</h1>
+      <p>New here? Create your account to access your dashboard.</p>
+      <button class="btn register-btn">Register</button>
+    </div>
+    <div class="toggle-panel toggle-right">
+      <h1>Welcome Back!</h1>
+      <p>Already registered? Login to continue to your dashboard.</p>
+      <button class="btn login-btn">Login</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* --------- Panel toggle --------- */
+const container = document.querySelector('.container');
+document.querySelector('.register-btn').addEventListener('click', () =>
+  container.classList.add('active')
+);
+document.querySelector('.login-btn').addEventListener('click', () =>
+  container.classList.remove('active')
+);
+
+/* --------- Show/Hide passwords --------- */
+function togglePassword(input, icon) {
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  icon.classList.toggle('bx-show', !isHidden);
+  icon.classList.toggle('bx-hide', isHidden);
+}
+const loginPwd = document.getElementById('loginPassword');
+document.getElementById('toggleLoginPwd')
+  .addEventListener('click', () => togglePassword(loginPwd, toggleLoginPwd));
+const regPwd = document.getElementById('registerPassword');
+document.getElementById('toggleRegisterPwd')
+  .addEventListener('click', () => togglePassword(regPwd, toggleRegisterPwd));
+
+/* --------- LOGIN --------- */
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = loginPwd.value;
+
+  try {
+    // Student login first
+    let res = await fetch('http://localhost:8081/students/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (res.ok) {
+      const student = await res.json();
+      localStorage.setItem('loggedStudent', JSON.stringify(student));
+      return window.location.href = 'student_dashboard.html';
+    }
+
+    // Faculty login
+    res = await fetch('http://localhost:8081/faculty/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (res.ok) {
+      const faculty = await res.json();
+      localStorage.setItem('loggedFaculty', JSON.stringify(faculty));
+      return window.location.href = 'faculty_dashboard.html';
+    }
+
+    // Both failed
+    const errorText = await res.text().catch(() => 'Invalid credentials');
+    alert(`Login failed: ${errorText}`);
+  } catch (err) {
+    console.error(err);
+    alert('Login failed. Ensure the backend is running on port 8081 and CORS is enabled.');
+  }
+});
+
+/* --------- REGISTER --------- */
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fullName = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const password = regPwd.value;
+  const role = document.getElementById('regRole').value;
+
+  const endpoint =
+    role === 'student'
+      ? 'http://localhost:8081/students/register'
+      : 'http://localhost:8081/faculty/register';
+
+  const payload =
+    role === 'student'
+      ? { fullName, email, password }
+      : { name: fullName, email, password };
+
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      const user = await res.json();
+      if (role === 'student') {
+        localStorage.setItem('loggedStudent', JSON.stringify(user));
+        window.location.href = 'student_dashboard.html';
+      } else {
+        localStorage.setItem('loggedFaculty', JSON.stringify(user));
+        window.location.href = 'faculty_dashboard.html';
+      }
+      return;
+    }
+
+    const errData = await res.json().catch(() => ({}));
+    alert(`Registration failed: ${errData.message || 'Try again'}`);
+  } catch (err) {
+    console.error(err);
+    alert('Registration failed. Ensure the backend is running on port 8081.');
+  }
+});
+</script>
+</body>
+</html>

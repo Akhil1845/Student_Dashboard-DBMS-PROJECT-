@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hackathons | Faculty Dashboard</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <link rel="stylesheet" href="faculty_dashboard.css">
+  <style>
+    .container { max-width: 900px; margin: 20px auto; padding: 20px; }
+    .hackathon-form { background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 30px; }
+    .hackathon-form h2 { margin-bottom: 15px; color: #fff; }
+    .hackathon-form input, .hackathon-form textarea {
+      width: 100%; padding: 10px; margin-bottom: 10px;
+      background: #2b2b2b; color: #fff; border: none; border-radius: 6px;
+    }
+    .hackathon-form button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; }
+    .hackathon-list .card {
+      background: #2b2b2b; padding: 15px; margin-bottom: 15px;
+      border-radius: 8px; color: #fff;
+    }
+    .card h3 { margin-top: 0; }
+    .active { background-color: #333; border-radius: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="menu">
+  <ul class="menu-content">
+    <li><a href="faculty_dashboard.html"><span class="material-symbols-outlined">home</span><span>Home</span></a></li>
+    <li><a href="faculty_dashboard.html"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a></li>
+    <li><a href="#"><span class="material-symbols-outlined">person</span><span>Profile</span></a></li>
+    <li><a href="#"><span class="material-symbols-outlined">groups</span><span>Students</span></a></li>
+    <li><a href="#"><span class="material-symbols-outlined">description</span><span>Tests</span></a></li>
+    <li><a href="faculty_hackathon.html" class="active"><span class="material-symbols-outlined">emoji_events</span><span>Hackathons</span></a></li>
+    <li><a href="#" onclick="logout()"><span class="material-symbols-outlined">logout</span><span>Logout</span></a></li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <div class="container">
+    <h1 style="color:#fff;">Hackathon Management</h1>
+
+    <!-- Add Hackathon Form -->
+    <div class="hackathon-form">
+      <h2>Post a New Hackathon</h2>
+      <input type="text" id="title" placeholder="Hackathon Title" required>
+      <textarea id="description" rows="3" placeholder="Short Description"></textarea>
+      <input type="date" id="registration_open">
+      <input type="text" id="prize_pool" placeholder="Prize Pool (e.g., $2000)">
+      <button id="postHackathonBtn">Post Hackathon</button>
+    </div>
+
+    <!-- List of Hackathons -->
+    <h2 style="color:#fff;">Your Posted Hackathons</h2>
+    <div class="hackathon-list" id="hackathonList">
+      <p style="color:#bbb;">Loading...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:8081/hackathons';
+
+// ---------- LOGOUT ----------
+function logout() {
+  localStorage.removeItem('loggedFaculty');
+  window.location.href = 'login_page.html';
+}
+
+// ---------- LOAD HACKATHONS ----------
+async function loadHackathons() {
+  try {
+    const res = await fetch(API_BASE);
+    if (!res.ok) throw new Error('Failed to load');
+    const data = await res.json();
+
+    const list = document.getElementById('hackathonList');
+    list.innerHTML = '';
+
+    if (!data.length) {
+      list.innerHTML = '<p style="color:#bbb;">No hackathons posted yet.</p>';
+      return;
+    }
+
+    data.forEach(h => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <h3>${h.title}</h3>
+        <p>${h.description || ''}</p>
+        <p><strong>Registration Opens:</strong> ${h.registrationOpen || 'N/A'}</p>
+        <p><strong>Prize:</strong> ${h.prizePool || 'N/A'}</p>
+      `;
+      list.appendChild(div);
+    });
+  } catch (err) {
+    console.error(err);
+    document.getElementById('hackathonList').innerHTML =
+      '<p style="color:red;">Could not load hackathons.</p>';
+  }
+}
+
+// ---------- POST HACKATHON ----------
+async function postHackathon() {
+  const stored = JSON.parse(localStorage.getItem('loggedFaculty'));
+  if (!stored || !stored.facultyId) {
+    alert('You must be logged in as faculty.');
+    return;
+  }
+
+  const body = {
+    title: document.getElementById('title').value.trim(),
+    description: document.getElementById('description').value.trim(),
+    registrationOpen: document.getElementById('registration_open').value,
+    prizePool: document.getElementById('prize_pool').value.trim(),
+    createdBy: stored.facultyId
+  };
+
+  if (!body.title) {
+    alert('Title is required');
+    return;
+  }
+
+  try {
+    const res = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) throw new Error('Failed to save hackathon');
+
+    // Clear form
+    document.getElementById('title').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('registration_open').value = '';
+    document.getElementById('prize_pool').value = '';
+
+    await loadHackathons();
+    alert('Hackathon posted successfully!');
+  } catch (err) {
+    console.error(err);
+    alert('Could not post hackathon.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadHackathons);
+document.getElementById('postHackathonBtn').addEventListener('click', postHackathon);
+</script>
+
+</body>
+</html>

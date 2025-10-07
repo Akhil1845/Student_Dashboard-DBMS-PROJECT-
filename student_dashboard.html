@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+<link href="student_dashboard.css" rel="stylesheet">
+<style>
+  .card { background:#fff; padding:15px; margin:10px 0; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+  .btn{background:#1976d2;color:white;border:none;padding:10px 20px;margin:5px;border-radius:5px;cursor:pointer;}
+  .btn:hover{background:#1565c0;}
+  .btn-submit{background:#4CAF50;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;margin-top:10px;}
+  .btn-submit:hover{background:#45a049;}
+  .form-group{margin:10px 0;}
+  .form-group label{display:block;font-weight:bold;margin-bottom:5px;}
+  .form-group input, .form-group textarea, .form-group select{width:100%;padding:8px;border-radius:5px;border:1px solid #ccc;}
+  .question-block { margin-bottom:15px; border:1px solid #ddd; padding:10px; border-radius:8px; background:#fdfdfd; }
+  .question-block label { font-weight:500; display:block; margin-bottom:5px; }
+  h2.section-title { margin-bottom:15px; color:#1976d2; }
+  .profile-item { margin-bottom: 8px; }
+  .profile-item span:first-child { font-weight: bold; margin-right:5px; }
+</style>
+</head>
+<body>
+
+<div class="menu">
+  <ul class="menu-content">
+    <li><a href="#" id="homeTabBtn"><span class="material-symbols-outlined">home</span><span>Home</span></a></li>
+    <li><a href="campus_connect.html"><span class="material-symbols-outlined">dashboard</span><span>Campus Connect</span></a></li>
+    <li><a href="#" id="profileTabBtn"><span class="material-symbols-outlined">person</span><span>Profile</span></a></li>
+    <li><a href="performance.html"><span class="material-symbols-outlined">analytics</span><span>Performance</span></a></li>
+    <li><a href="#" id="testsTabBtn"><span class="material-symbols-outlined">description</span><span>Tests</span></a></li>
+    <li><a href="#" id="hackathonTabBtn"><span class="material-symbols-outlined">emoji_events</span><span>Hackathons</span></a></li>
+    <li><a href="#" id="courseTabBtn"><span class="material-symbols-outlined">menu_book</span><span>Courses</span></a></li>
+    <li><a href="#" onclick="logout()"><span class="material-symbols-outlined">logout</span><span>Logout</span></a></li>
+  </ul>
+</div>
+
+<div class="main-content">
+
+  <!-- Home -->
+  <div id="homeSection">
+    <div class="home-hero">
+      <h1>Welcome, <span id="greetingName">Student</span> 👋</h1>
+      <p class="hero-subtext">“Consistency is the key to success. Keep learning today!”</p>
+    </div>
+    <div class="home-quick-actions">
+      <button class="btn" id="homeTestBtn">Take Test</button>
+      <button class="btn" id="homeHackathonBtn">Hackathons</button>
+      <button class="btn" id="homeResultsBtn">Results</button>
+      <button class="btn" id="homeProfileBtn">Profile</button>
+      <button class="btn" id="homeCampusConnectBtn">Campus Connect</button>
+      <button class="btn" id="homeCourseBtn">Courses</button>
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div class="profile-card" id="profileSection" style="display:none;">
+    <h2>Profile Information</h2>
+    <div class="profile-item"><span>Name:</span> <span id="studentName">Loading...</span></div>
+    <div class="profile-item"><span>Email:</span> <span id="studentEmail">Loading...</span></div>
+    <div class="profile-item"><span>Class:</span> <span id="studentClass">Loading...</span></div>
+    <div class="profile-item"><span>Stream:</span> <span id="studentDept">Loading...</span></div>
+    <div class="profile-item"><span>Tests Attempted:</span> <span id="testsAttempted">0</span></div>
+    <div class="profile-item"><span>Test Average:</span> <span id="testAverage">0</span></div>
+    <div class="profile-item"><span>Hackathons Participated:</span> <span id="hackathonsParticipated">0</span></div>
+    <div class="profile-item"><span>Hackathon Rating:</span> <span id="hackathonRating">0</span></div>
+    <button class="btn" id="updateProfileBtn">Update Profile</button>
+  </div>
+
+  <!-- Tests -->
+  <div id="testsSection" style="display:none;">
+    <h2 class="section-title">Available Tests</h2>
+    <div id="availableTests"></div>
+    <div id="testAttemptSection" style="display:none;">
+      <h3 id="testTitleDisplay"></h3>
+      <form id="attemptTestForm"></form>
+    </div>
+  </div>
+
+  <!-- Hackathons -->
+  <div id="hackathonSection" style="display:none;">
+    <h2>Available Hackathons</h2>
+    <div id="hackathonListStudent"></div>
+  </div>
+
+  <!-- Courses -->
+  <div id="courseSection" style="display:none;">
+    <h2 class="section-title">Your Courses</h2>
+    <div id="courseList"></div>
+  </div>
+
+</div>
+
+<script>
+const API_BASE_STUDENT = 'http://localhost:8081/students';
+const API_BASE_TESTS   = 'http://localhost:8081/tests';
+const API_BASE_HACK    = 'http://localhost:8081/hackathons';
+const API_BASE_COURSE  = 'http://localhost:8081/courses';
+const API_BASE_FACULTY = 'http://localhost:8081/faculty';
+
+// ---------- LOGOUT ----------
+function logout() {
+  localStorage.removeItem('loggedStudent');
+  window.location.href='login_page.html';
+}
+
+// ---------- LOAD STUDENT ----------
+document.addEventListener('DOMContentLoaded', async ()=>{
+  const stored = JSON.parse(localStorage.getItem('loggedStudent'));
+  if(!stored || !stored.studentId){ logout(); return; }
+  try{
+    const res = await fetch(`${API_BASE_STUDENT}/${stored.studentId}`);
+    const student = await res.json();
+    document.getElementById('greetingName').innerText = student.fullName?.split(' ')[0] || "Student";
+    localStorage.setItem('loggedStudent', JSON.stringify(student));
+  }catch(err){ console.error(err); alert("Failed to load student"); logout(); }
+});
+
+// ---------- SHOW SECTION ----------
+function showSection(id){
+  ['homeSection','profileSection','testsSection','hackathonSection','courseSection']
+    .forEach(sec=>document.getElementById(sec).style.display='none');
+  document.getElementById(id).style.display='block';
+}
+
+// ---------- PROFILE ----------
+function loadProfile(){
+  const st = JSON.parse(localStorage.getItem('loggedStudent'));
+  if(!st) return;
+  document.getElementById('studentName').innerText = st.fullName || "N/A";
+  document.getElementById('studentEmail').innerText = st.email || "N/A";
+  document.getElementById('studentClass').innerText = st.classYear || "N/A";
+  document.getElementById('studentDept').innerText = st.department || "N/A";
+  document.getElementById('testsAttempted').innerText = st.testsAttempted || 0;
+  document.getElementById('testAverage').innerText = st.testAverage || 0;
+  document.getElementById('hackathonsParticipated').innerText = st.hackathonsParticipated || 0;
+  document.getElementById('hackathonRating').innerText = st.hackathonRating || 0;
+  showSection('profileSection');
+}
+
+// ---------- LOAD COURSES ----------
+async function loadCourses() {
+  showSection('courseSection');
+  try {
+    const res = await fetch(API_BASE_COURSE);
+    if (!res.ok) throw new Error("Failed to fetch courses");
+    const courses = await res.json();
+    const cont = document.getElementById('courseList');
+    cont.innerHTML = '';
+    courses.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <h3>${c.courseName || 'N/A'}</h3>
+        <p><strong>Credits:</strong> ${c.credits || 0}</p>
+        <p><strong>Faculty:</strong> ${c.facultyName || 'Unknown'}</p>
+      `;
+      cont.appendChild(div);
+    });
+  } catch(err){ console.error(err); alert('Failed to load courses'); }
+}
+
+// ---------- LOAD TESTS ----------
+async function loadAvailableTests(){
+  showSection('testsSection');
+  document.getElementById('testAttemptSection').style.display='none';
+  document.getElementById('availableTests').style.display='block';
+  try{
+    const res = await fetch(API_BASE_TESTS);
+    const tests = await res.json();
+    const cont = document.getElementById('availableTests');
+    cont.innerHTML='';
+    tests.forEach(t=>{
+      const div = document.createElement('div');
+      div.className='card';
+      div.innerHTML=`<h3>${t.title}</h3><p>${t.description||''}</p><button class="btn" onclick="attemptTest(${t.testId})">Attempt Test</button>`;
+      cont.appendChild(div);
+    });
+  }catch(err){ console.error(err); alert('Failed to load tests'); }
+}
+
+// ---------- ATTEMPT TEST ----------
+async function attemptTest(id){
+  try{
+    const res = await fetch(`${API_BASE_TESTS}/${id}`);
+    const test = await res.json();
+    document.getElementById('availableTests').style.display='none';
+    document.getElementById('testAttemptSection').style.display='block';
+    document.getElementById('testTitleDisplay').innerText = test.title;
+    const form = document.getElementById('attemptTestForm');
+    form.innerHTML='';
+    test.questions?.forEach((q,i)=>{
+      const block = document.createElement('div');
+      block.className='question-block';
+      block.innerHTML = `<label>${i+1}. ${q.text}</label>
+        <select class="answer" required>
+          <option value="">Select</option>
+          <option value="A">${q.optionA||''}</option>
+          <option value="B">${q.optionB||''}</option>
+          <option value="C">${q.optionC||''}</option>
+          <option value="D">${q.optionD||''}</option>
+        </select>`;
+      form.appendChild(block);
+    });
+    const btn=document.createElement('button');
+    btn.type='submit'; btn.className='btn-submit'; btn.innerText='Submit Test';
+    form.appendChild(btn);
+    form.onsubmit = async e=>{
+      e.preventDefault();
+      const ans = Array.from(form.querySelectorAll('.answer')).map(a=>a.value);
+      const student = JSON.parse(localStorage.getItem('loggedStudent'));
+      try{
+        const r = await fetch(`${API_BASE_TESTS}/${id}/submit`,{
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ studentId:student.studentId, answers:ans })
+        });
+        if(r.ok){
+          const result = await r.json();
+          alert(`You scored ${result.score} / ${test.totalMarks}`);
+          document.getElementById('testAttemptSection').style.display='none';
+          document.getElementById('availableTests').style.display='block';
+          loadAvailableTests();
+        }else throw new Error();
+      }catch(err){ console.error(err); alert('Submit failed'); }
+    };
+  }catch(err){ console.error(err); alert('Failed to load test'); }
+}
+
+// ---------- HACKATHONS ----------
+async function loadStudentHackathons(){
+  const st = JSON.parse(localStorage.getItem('loggedStudent'));
+  if(!st) return;
+  try{
+    const res = await fetch(API_BASE_HACK);
+    const hacks = await res.json();
+    const cont = document.getElementById('hackathonListStudent');
+    cont.innerHTML='';
+    hacks.forEach(h=>{
+      const joined = h.acceptedStudents?.includes(st.studentId);
+      const div = document.createElement('div');
+      div.className='card';
+      div.innerHTML=`<h3>${h.title}</h3><p>${h.description||''}</p>
+        <button class="btn" onclick="joinHackathon(${h.id})" ${joined?'disabled':''}>${joined?'Joined':'Join'}</button>`;
+      cont.appendChild(div);
+    });
+  }catch(err){ console.error(err); alert('Failed to load hackathons'); }
+}
+
+async function joinHackathon(id){
+  const st = JSON.parse(localStorage.getItem('loggedStudent'));
+  try{
+    await fetch(`${API_BASE_HACK}/join`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ hackathonId:id, studentId:st.studentId })
+    });
+    loadStudentHackathons();
+  }catch(err){ console.error(err); alert('Failed to join hackathon'); }
+}
+
+// ---------- EVENT HANDLERS ----------
+document.getElementById('profileTabBtn').addEventListener('click', loadProfile);
+document.getElementById('homeTabBtn').addEventListener('click',()=>showSection('homeSection'));
+document.getElementById('homeTestBtn').addEventListener('click',loadAvailableTests);
+document.getElementById('testsTabBtn').addEventListener('click',loadAvailableTests);
+document.getElementById('homeHackathonBtn').addEventListener('click',()=>{showSection('hackathonSection');loadStudentHackathons();});
+document.getElementById('hackathonTabBtn').addEventListener('click',()=>{showSection('hackathonSection');loadStudentHackathons();});
+document.getElementById('homeResultsBtn').addEventListener('click',()=>window.location.href='performance.html');
+document.getElementById('homeProfileBtn').addEventListener('click',loadProfile);
+document.getElementById('homeCampusConnectBtn').addEventListener('click',()=>window.location.href='campus_connect.html');
+document.getElementById('updateProfileBtn').addEventListener('click',()=>window.location.href='update_profile.html');
+document.getElementById('homeCourseBtn').addEventListener('click',loadCourses);
+document.getElementById('courseTabBtn').addEventListener('click',loadCourses);
+</script>
+</body>
+</html>

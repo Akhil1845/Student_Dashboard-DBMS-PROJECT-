@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Update Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="student_dashboard.css">
+<style>
+body {
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  margin: 50px auto;
+  width: 100%;
+  max-width: 600px;
+  padding: 30px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.form-card {
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.form-card label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-card input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.form-card input:disabled {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  background: #7494ec;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #5a78d1;
+}
+
+.alert {
+  margin-bottom: 15px;
+  padding: 10px;
+  color: #fff;
+  border-radius: 5px;
+  display: none;
+}
+
+.alert.success { background-color: #4CAF50; }
+.alert.error { background-color: #f44336; }
+</style>
+</head>
+<body>
+
+<div class="main-content">
+  <h1>Update Your Profile</h1>
+
+  <div class="form-card">
+    <div id="alert" class="alert"></div>
+    <form id="updateProfileForm">
+      <label>Full Name</label>
+      <input type="text" id="fullName" name="fullName" disabled>
+
+      <label>Email</label>
+      <input type="email" id="email" name="email" disabled>
+
+      <label>Class / Year</label>
+      <input type="text" id="classYear" name="classYear" required>
+
+      <label>Department</label>
+      <input type="text" id="department" name="department" required>
+
+      <label>Program</label>
+      <input type="text" id="program" name="program" required>
+
+      <label>Skills / Interests</label>
+      <input type="text" id="skills" name="skills">
+
+      <label>Last Sem CGPA</label>
+      <input type="number" id="lastSemCgpa" name="lastSemCgpa" step="0.01" required>
+
+      <button type="submit" class="btn">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:8081/students';
+const alertBox = document.getElementById('alert');
+
+// ---------- PRE-FILL FORM ----------
+document.addEventListener('DOMContentLoaded', async () => {
+  const stored = JSON.parse(localStorage.getItem('loggedStudent'));
+  if (!stored || !stored.studentId) {
+    alert('You are not logged in!');
+    window.location.href = 'login_page.html';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/${stored.studentId}`);
+    if (!res.ok) throw new Error('Failed to fetch student data');
+    const student = await res.json();
+
+    document.getElementById('fullName').value = student.fullName || "";
+    document.getElementById('email').value = student.email || "";
+    document.getElementById('classYear').value = student.classYear || "";
+    document.getElementById('department').value = student.department || "";
+    document.getElementById('program').value = student.program || "";
+    document.getElementById('skills').value = student.skills || "";
+    document.getElementById('lastSemCgpa').value = student.lastSemCgpa || "";
+
+  } catch (err) {
+    console.error(err);
+    showAlert('Failed to load profile data.', 'error');
+  }
+});
+
+// ---------- FORM SUBMIT ----------
+document.getElementById('updateProfileForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const stored = JSON.parse(localStorage.getItem('loggedStudent'));
+  if (!stored || !stored.studentId) return;
+
+  const data = {
+    classYear: document.getElementById('classYear').value,
+    department: document.getElementById('department').value,
+    program: document.getElementById('program').value,
+    skills: document.getElementById('skills').value,
+    lastSemCgpa: parseFloat(document.getElementById('lastSemCgpa').value)
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/${stored.studentId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to update profile');
+
+    showAlert('Profile updated successfully!', 'success');
+    // Update localStorage and redirect
+    const updatedStudent = { ...stored, ...data };
+    localStorage.setItem('loggedStudent', JSON.stringify(updatedStudent));
+    setTimeout(() => { window.location.href = 'student_dashboard.html'; }, 1200);
+  } catch (err) {
+    console.error(err);
+    showAlert('Error updating profile. Try again.', 'error');
+  }
+});
+
+// ---------- ALERT FUNCTION ----------
+function showAlert(message, type) {
+  alertBox.innerText = message;
+  alertBox.className = `alert ${type}`;
+  alertBox.style.display = 'block';
+  setTimeout(() => alertBox.style.display = 'none', 3000);
+}
+</script>
+
+</body>
+</html>  

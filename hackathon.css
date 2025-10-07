@@ -1,0 +1,175 @@
+/* ==================== GLOBAL ==================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
+  display: flex;
+}
+
+/* ==================== SIDEBAR ==================== */
+.menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 85px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: 0.3s;
+  overflow: hidden scroll;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 20px 0;
+  backdrop-filter: blur(6px);
+  box-shadow: 8px 0px 9px 0px #00000014;
+}
+
+.menu:hover {
+  width: 260px;
+}
+
+.menu-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-left: 20px;
+}
+
+.menu-content li {
+  list-style: none;
+  border-radius: 0px 50px 50px 0;
+  transition: 0.3s;
+  padding-left: 20px;
+}
+
+.menu-content li:hover {
+  background: #7494ec;
+}
+
+.menu-content li span:nth-child(2) {
+  display: none;
+}
+
+.menu-content li a {
+  text-decoration: none;
+  color: #333;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.material-symbols-outlined {
+  padding: 10px;
+  font-size: 25px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: #eee;
+  color: #333;
+  transition: 0.3s;
+}
+
+.menu-content li:hover .material-symbols-outlined {
+  background: #fff;
+  color: #7494ec;
+}
+
+/* Logout */
+.menu-logout {
+  padding-left: 20px;
+}
+
+.menu-logout a {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-radius: 0px 50px 50px 0;
+  color: #333;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.menu-logout a:hover {
+  background: #7494ec;
+  color: #fff;
+}
+
+.menu:hover li span:nth-child(2),
+.menu:hover .menu-logout a span:nth-child(2) {
+  display: block;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+.main-content {
+  margin-left: 100px;
+  padding: 30px;
+  width: 100%;
+}
+
+.main-content h1 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.subheading {
+  margin-bottom: 25px;
+  color: #555;
+}
+
+/* ==================== HACKATHON CARDS ==================== */
+.hackathon-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.hackathon-cards .card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  min-width: 250px;
+  max-width: 300px;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.hackathon-cards .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.hackathon-cards .card h3 {
+  color: #7494ec;
+  margin-bottom: 10px;
+}
+
+.hackathon-cards .card p {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.hackathon-cards .card .btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 12px;
+  background: #7494ec;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  transition: 0.3s;
+}
+
+.hackathon-cards .card .btn:hover {
+  background: #5a78d1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
