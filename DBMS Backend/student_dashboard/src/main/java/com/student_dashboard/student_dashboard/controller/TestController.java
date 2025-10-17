@@ -10,6 +10,7 @@ import com.student_dashboard.student_dashboard.service.TestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,72 +28,83 @@ public class TestController {
         this.facultyService = facultyService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Test>> getAllTests(@RequestParam(required = false) Integer facultyId) {
-        if(facultyId != null) {
-            return ResponseEntity.ok(testService.getTestsByFacultyId(facultyId));
-        }
-        return ResponseEntity.ok(testService.getAllTests());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Test> getTestById(@PathVariable int id) {
-        Test test = testService.getTestById(id);
-        if (test == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(test);
-    }
-
+    // ✅ Save Test along with its Questions
     @PostMapping
-    public ResponseEntity<Test> createTest(@RequestBody Test test) {
-        // Map course and faculty safely
-        if(test.getCourse() != null && test.getCourse().getCourseId() != 0) {
+    public ResponseEntity<?> saveTest(@RequestBody Test test) {
+        try {
+            if (test == null)
+                return ResponseEntity.badRequest().body("Test data cannot be null");
+
+            // Validate and attach course
+            if (test.getCourse() == null || test.getCourse().getCourseId() == 0)
+                return ResponseEntity.badRequest().body("Course ID is required");
             Course course = courseService.getCourseById(test.getCourse().getCourseId());
+            if (course == null)
+                return ResponseEntity.badRequest().body("Invalid course ID");
             test.setCourse(course);
-        }
-        if(test.getFaculty() != null && test.getFaculty().getFacultyId() != 0) {
+
+            // Validate and attach faculty
+            if (test.getFaculty() == null || test.getFaculty().getFacultyId() == 0)
+                return ResponseEntity.badRequest().body("Faculty ID is required");
             Faculty faculty = facultyService.getFacultyById(test.getFaculty().getFacultyId());
+            if (faculty == null)
+                return ResponseEntity.badRequest().body("Invalid faculty ID");
             test.setFaculty(faculty);
-        }
 
-        // Validate questions
-        if(test.getQuestions() != null) {
-            for(Question q : test.getQuestions()) {
-                q.setTest(test);
-                if(q.getCorrectOption() == null || q.getCorrectOption().isEmpty()) {
-                    throw new RuntimeException("Each question must have a correct answer");
+            // ✅ Validate and link questions
+            List<Question> validQuestions = new ArrayList<>();
+            if (test.getQuestions() != null && !test.getQuestions().isEmpty()) {
+                for (Question q : test.getQuestions()) {
+                    if (q.getQuestionText() == null || q.getQuestionText().trim().isEmpty()) continue;
+
+                    if (q.getCorrectOption() == null || q.getCorrectOption().trim().isEmpty())
+                        return ResponseEntity.badRequest()
+                                .body("Each question must have a correct option for: " + q.getQuestionText());
+
+                    q.setTest(test); // important link back
+                    validQuestions.add(q);
                 }
             }
-        }
 
-        Test savedTest = testService.saveTest(test);
-        return ResponseEntity.ok(savedTest);
+            // ✅ Ensure questions are attached before saving
+            test.setQuestions(validQuestions);
+
+            // Save (CascadeType.ALL in Test ensures questions persist)
+            Test savedTest = testService.saveTest(test);
+            return ResponseEntity.ok(savedTest);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error saving test: " + e.getMessage());
+        }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Test> updateTest(@PathVariable int id, @RequestBody Test test) {
-        Test existing = testService.getTestById(id);
-        if(existing == null) return ResponseEntity.notFound().build();
-
-        test.setTestId(id);
-
-        if(test.getQuestions() != null) {
-            for(Question q : test.getQuestions()) {
-                q.setTest(test);
-                if(q.getCorrectOption() == null || q.getCorrectOption().isEmpty()) {
-                    throw new RuntimeException("Each question must have a correct answer");
-                }
+    // ✅ Get tests by faculty ID
+    @GetMapping
+    public ResponseEntity<?> getTestsByFaculty(@RequestParam int facultyId) {
+        try {
+            List<Test> tests = testService.getTestsByFacultyId(facultyId);
+            if (tests.isEmpty()) {
+                return ResponseEntity.ok(List.of()); // return empty list safely
             }
+            return ResponseEntity.ok(tests);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error fetching tests: " + e.getMessage());
         }
-
-        Test updated = testService.saveTest(test);
-        return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTest(@PathVariable int id) {
-        Test existing = testService.getTestById(id);
-        if(existing == null) return ResponseEntity.notFound().build();
-        testService.deleteTest(id);
-        return ResponseEntity.noContent().build();
+    // ✅ Get single test by ID (with questions)
+    @GetMapping("/{testId}")
+    public ResponseEntity<?> getTestById(@PathVariable int testId) {
+        try {
+            Test test = testService.getTestById(testId);
+            if (test == null)
+                return ResponseEntity.status(404).body("Test not found with ID: " + testId);
+            return ResponseEntity.ok(test);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error fetching test: " + e.getMessage());
+        }
     }
 }
