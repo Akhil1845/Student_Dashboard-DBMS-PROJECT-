@@ -23,8 +23,8 @@ public class Result {
     @JsonBackReference
     private Test test;
 
-    @Column(name = "marks", nullable = false)
-    private int marksObtained;
+    @Column(name = "marks_obtained", nullable = false)
+    private int marksObtained;  // now matches DB
 
     @Column(name = "max_marks", nullable = false)
     private int maxMarks;
