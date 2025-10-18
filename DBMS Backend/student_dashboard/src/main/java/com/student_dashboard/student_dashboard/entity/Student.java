@@ -1,221 +1,116 @@
 package com.student_dashboard.student_dashboard.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.sql.Date;
-import java.util.List;
 
 @Entity
+@Table(name = "student")
 public class Student {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "student_id")
     private int studentId;
 
+    @Column(name = "full_name")
     private String fullName;
-    private String rollNumber;
-    private String gender;
-    private Date dob;
+
+    @Column(unique = true)
     private String email;
+
+    private String password;
+
+    @Column(name = "roll_number")
+    @JsonProperty("rollNumber")
+    private String rollNumber;
+
+    private String gender;
+
+    private Date dob;
+
+    @Column(name = "contact_no")
+    @JsonProperty("contactNo")
     private String contactNo;
+
+    @Column(name = "class_year")
+    @JsonProperty("classYear")
     private String classYear;
+
     private String department;
     private String program;
     private String skills;
-    private double lastSemCgpa;
-    private String password;
 
-    // ✅ New optional performance fields
-    @Column(nullable = true)
+    @Column(name = "last_sem_cgpa")
+    @JsonProperty("lastSemCgpa")
+    private Double lastSemCgpa;
+
+    @Column(name = "tests_attempted")
+    @JsonProperty("testsAttempted")
     private Integer testsAttempted;
 
-    @Column(nullable = true)
+    @Column(name = "test_average")
+    @JsonProperty("testAverage")
     private Double testAverage;
 
-    @Column(nullable = true)
+    @Column(name = "hackathons_participated")
+    @JsonProperty("hackathonsParticipated")
     private Integer hackathonsParticipated;
 
-    @Column(nullable = true)
+    @Column(name = "hackathon_rating")
+    @JsonProperty("hackathonRating")
     private Double hackathonRating;
 
-    // ==== Relations ====
-    @OneToMany(mappedBy = "student")
-    private List<Parent> parents;
+    // ================= Getters & Setters =================
 
-    @OneToMany(mappedBy = "student")
-    private List<Enrollment> enrollments;
+    public int getStudentId() { return studentId; }
+    public void setStudentId(int studentId) { this.studentId = studentId; }
 
-    @OneToMany(mappedBy = "student")
-    private List<Attendance> attendanceList;
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
-    @OneToMany(mappedBy = "student")
-    private List<Result> results;
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    // ===== Getters & Setters =====
-    public int getStudentId() {
-        return studentId;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setStudentId(int studentId) {
-        this.studentId = studentId;
-    }
+    public String getRollNumber() { return rollNumber; }
+    public void setRollNumber(String rollNumber) { this.rollNumber = rollNumber; }
 
-    public String getFullName() {
-        return fullName;
-    }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
+    public Date getDob() { return dob; }
+    public void setDob(Date dob) { this.dob = dob; }
 
-    public String getRollNumber() {
-        return rollNumber;
-    }
+    public String getContactNo() { return contactNo; }
+    public void setContactNo(String contactNo) { this.contactNo = contactNo; }
 
-    public void setRollNumber(String rollNumber) {
-        this.rollNumber = rollNumber;
-    }
+    public String getClassYear() { return classYear; }
+    public void setClassYear(String classYear) { this.classYear = classYear; }
 
-    public String getGender() {
-        return gender;
-    }
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
 
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
+    public String getProgram() { return program; }
+    public void setProgram(String program) { this.program = program; }
 
-    public Date getDob() {
-        return dob;
-    }
+    public String getSkills() { return skills; }
+    public void setSkills(String skills) { this.skills = skills; }
 
-    public void setDob(Date dob) {
-        this.dob = dob;
-    }
+    public Double getLastSemCgpa() { return lastSemCgpa; }
+    public void setLastSemCgpa(Double lastSemCgpa) { this.lastSemCgpa = lastSemCgpa; }
 
-    public String getEmail() {
-        return email;
-    }
+    public Integer getTestsAttempted() { return testsAttempted; }
+    public void setTestsAttempted(Integer testsAttempted) { this.testsAttempted = testsAttempted; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public Double getTestAverage() { return testAverage; }
+    public void setTestAverage(Double testAverage) { this.testAverage = testAverage; }
 
-    public String getContactNo() {
-        return contactNo;
-    }
+    public Integer getHackathonsParticipated() { return hackathonsParticipated; }
+    public void setHackathonsParticipated(Integer hackathonsParticipated) { this.hackathonsParticipated = hackathonsParticipated; }
 
-    public void setContactNo(String contactNo) {
-        this.contactNo = contactNo;
-    }
-
-    public String getClassYear() {
-        return classYear;
-    }
-
-    public void setClassYear(String classYear) {
-        this.classYear = classYear;
-    }
-
-    public String getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-
-    public String getProgram() {
-        return program;
-    }
-
-    public void setProgram(String program) {
-        this.program = program;
-    }
-
-    public String getSkills() {
-        return skills;
-    }
-
-    public void setSkills(String skills) {
-        this.skills = skills;
-    }
-
-    public double getLastSemCgpa() {
-        return lastSemCgpa;
-    }
-
-    public void setLastSemCgpa(double lastSemCgpa) {
-        this.lastSemCgpa = lastSemCgpa;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Integer getTestsAttempted() {
-        return testsAttempted;
-    }
-
-    public void setTestsAttempted(Integer testsAttempted) {
-        this.testsAttempted = testsAttempted;
-    }
-
-    public Double getTestAverage() {
-        return testAverage;
-    }
-
-    public void setTestAverage(Double testAverage) {
-        this.testAverage = testAverage;
-    }
-
-    public Integer getHackathonsParticipated() {
-        return hackathonsParticipated;
-    }
-
-    public void setHackathonsParticipated(Integer hackathonsParticipated) {
-        this.hackathonsParticipated = hackathonsParticipated;
-    }
-
-    public Double getHackathonRating() {
-        return hackathonRating;
-    }
-
-    public void setHackathonRating(Double hackathonRating) {
-        this.hackathonRating = hackathonRating;
-    }
-
-    public List<Parent> getParents() {
-        return parents;
-    }
-
-    public void setParents(List<Parent> parents) {
-        this.parents = parents;
-    }
-
-    public List<Enrollment> getEnrollments() {
-        return enrollments;
-    }
-
-    public void setEnrollments(List<Enrollment> enrollments) {
-        this.enrollments = enrollments;
-    }
-
-    public List<Attendance> getAttendanceList() {
-        return attendanceList;
-    }
-
-    public void setAttendanceList(List<Attendance> attendanceList) {
-        this.attendanceList = attendanceList;
-    }
-
-    public List<Result> getResults() {
-        return results;
-    }
-
-    public void setResults(List<Result> results) {
-        this.results = results;
-    }
+    public Double getHackathonRating() { return hackathonRating; }
+    public void setHackathonRating(Double hackathonRating) { this.hackathonRating = hackathonRating; }
 }
