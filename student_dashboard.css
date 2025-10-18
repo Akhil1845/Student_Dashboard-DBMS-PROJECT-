@@ -10,35 +10,28 @@ body {
   min-height: 100vh;
   background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
   display: flex;
-  overflow: hidden;
+  overflow-x: hidden;
+  color: #333;
 }
 
 /* ==================== SIDEBAR ==================== */
-.menu::-webkit-scrollbar {
-  display: none;
-}
+.menu::-webkit-scrollbar { display: none; }
 
 .menu {
   position: fixed;
   top: 0;
   left: 0;
   width: 85px;
-  height: 100vh;   /* FULL viewport, CRUCIAL for logout button fix! */
-  transition: 0.3s;
-  overflow: hidden scroll;
+  height: 100vh;
+  transition: width 0.3s ease;
+  overflow-y: auto;
   background: rgba(255, 255, 255, 0.15);
   padding: 20px 20px 20px 0;
   backdrop-filter: blur(6px);
-  box-shadow: 8px 0px 9px 0px #00000014;
+  box-shadow: 8px 0 9px rgba(0, 0, 0, 0.08);
 }
 
-.menu:hover {
-  width: 260px;
-}
-
-.menu:hover li span:nth-child(2) {
-  display: block;
-}
+.menu:hover { width: 260px; }
 
 .menu-content {
   display: flex;
@@ -49,26 +42,17 @@ body {
 .menu-content li {
   list-style: none;
   border-radius: 0px 50px 50px 0;
-  transition: 0.3s;
+  transition: background 0.3s;
   margin-bottom: 20px;
   padding-left: 20px;
 }
 
-.menu-content li:hover {
-  background: #7494ec;
-}
+.menu-content li:hover { background: #7494ec; }
 
-.menu-content li span:nth-child(2) {
-  display: none;
-}
+.menu-content li span:nth-child(2) { display: none; }
+.menu:hover .menu-content li span:nth-child(2) { display: inline-block; }
 
-.menu:hover .menu-content li span:nth-child(2) {
-  display: block;
-}
-
-.menu-content li:last-child {
-  margin-top: auto;    /* Push Logout to bottom */
-}
+.menu-content li:last-child { margin-top: auto; }
 
 a {
   text-decoration: none;
@@ -97,13 +81,13 @@ a {
 .main-content {
   margin-left: 100px;
   padding: 30px;
-  width: 100%;
+  width: calc(100% - 100px);
+  transition: margin-left 0.3s ease;
 }
 
-.main-content h1 {
-  color: #333;
-  margin-bottom: 20px;
-}
+.menu:hover ~ .main-content { margin-left: 260px; }
+
+.main-content h1 { color: #333; margin-bottom: 20px; }
 
 /* ==================== PROFILE CARD ==================== */
 .profile-card {
@@ -121,10 +105,7 @@ a {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
-.profile-card h2 {
-  color: #7494ec;
-  margin-bottom: 15px;
-}
+.profile-card h2 { color: #7494ec; margin-bottom: 15px; }
 
 .profile-item {
   margin: 12px 0;
@@ -132,10 +113,7 @@ a {
   color: #333;
 }
 
-.profile-item span {
-  font-weight: 600;
-  color: #555;
-}
+.profile-item span { font-weight: 600; color: #555; }
 
 /* ==================== BUTTONS ==================== */
 .btn {
@@ -149,7 +127,7 @@ a {
   font-weight: 600;
   cursor: pointer;
   font-size: 1rem;
-  transition: 0.3s;
+  transition: all 0.3s ease;
 }
 
 .btn:hover {
@@ -175,63 +153,164 @@ a {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
-.home-hero h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-}
+.home-hero h1 { font-size: 2.5rem; margin-bottom: 10px; }
 
-.hero-subtext {
-  font-size: 1.1rem;
-  opacity: 0.9;
-}
+.hero-subtext { font-size: 1.1rem; opacity: 0.9; }
 
-.home-quick-actions {
+.home-buttons { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px; }
+
+.home-buttons .btn { flex: 1 1 150px; max-width: 200px; }
+
+/* ==================== TEST CARDS ==================== */
+#availableTests {
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
-  margin-bottom: 30px;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.home-quick-actions .btn {
-  flex: 1 1 150px;
-  max-width: 200px;
-  font-size: 1rem;
-  padding: 12px 20px;
-  border-radius: 12px;
-}
-
-/* ==================== ANNOUNCEMENTS ==================== */
-.home-announcements {
-  margin-top: 20px;
-}
-
-.home-announcements h2 {
-  color: #333;
-  margin-bottom: 15px;
-  text-align: center;
-  font-size: 1.4rem;
-}
-
-.announcement-cards {
+.test-card {
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
-}
-
-.announcement-cards .card {
+  justify-content: space-between;
+  align-items: center;
   background: #fff;
-  padding: 20px;
-  border-radius: 15px;
-  min-width: 220px;
-  max-width: 250px;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  padding: 20px 25px;
+  width: 100%;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.announcement-cards .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+.test-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.test-card .test-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.test-card .test-info h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.test-card .test-info p {
+  margin: 0;
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* 🎯 BEAUTIFUL ATTEMPT TEST BUTTON */
+.test-card .btn {
+  background: linear-gradient(135deg, #6f8ef6, #4f6ad9);
+  color: #fff;
+  padding: 12px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(111, 142, 246, 0.3);
+}
+
+.test-card .btn:hover {
+  background: linear-gradient(135deg, #5a78d1, #3f59b9);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(90, 120, 209, 0.4);
+}
+
+/* ==================== TEST ATTEMPT FORM ==================== */
+#testAttemptSection {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.question-block {
+  background: #f5f6fa;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.question-block label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.question-block input[type="radio"] {
+  margin-right: 10px;
+  accent-color: #7494ec;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.question-block input[type="radio"]:hover {
+  accent-color: #5a78d1;
+}
+
+#attemptTestForm .btn-submit {
+  margin-top: 20px;
+  width: 100%;
+  background: linear-gradient(135deg, #5a78d1, #4161a1);
+  color: #fff;
+  font-size: 1.1rem;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#attemptTestForm .btn-submit:hover {
+  background: linear-gradient(135deg, #4b66c9, #344d91);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* ==================== COURSES & HACKATHONS ==================== */
+#courseList, #hackathonListStudent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+#courseList .card, #hackathonListStudent .card {
+  width: 280px;
+  text-align: center;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .menu { width: 60px; }
+  .menu:hover { width: 200px; }
+  .main-content { margin-left: 60px; }
+  .menu:hover ~ .main-content { margin-left: 200px; }
+
+  #availableTests, #testAttemptSection { padding: 15px; }
+
+  .test-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .test-card .btn {
+    align-self: flex-end;
+    margin-top: 10px;
+  }
+
+  #courseList .card, #hackathonListStudent .card { width: 100%; }
 }
