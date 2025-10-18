@@ -280,8 +280,8 @@ function appendTestRow(t){
     const tr = document.createElement("tr");
     const testId = t.testId ?? '-';
     const title = t.title ?? '-';
-    const courseName = t.course?.courseName ?? '-';
-    const testDate = t.testDate ? new Date(t.testDate).toLocaleDateString() : '-';
+    const courseName = t.courseName ?? '-';
+    const testDate = t.testDate ?? '-';
     const totalMarks = t.totalMarks ?? '-';
     tr.innerHTML = `
         <td>${testId}</td>
