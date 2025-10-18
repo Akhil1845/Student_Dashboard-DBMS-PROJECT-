@@ -4,26 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Dashboard</title>
+
+<!-- Google Icons & Font -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
 <link href="student_dashboard.css" rel="stylesheet">
-<style>
-  .card { background:#fff; padding:15px; margin:10px 0; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-  .btn{background:#1976d2;color:white;border:none;padding:10px 20px;margin:5px;border-radius:5px;cursor:pointer;}
-  .btn:hover{background:#1565c0;}
-  .btn-submit{background:#4CAF50;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;margin-top:10px;}
-  .btn-submit:hover{background:#45a049;}
-  .form-group{margin:10px 0;}
-  .form-group label{display:block;font-weight:bold;margin-bottom:5px;}
-  .form-group input, .form-group textarea, .form-group select{width:100%;padding:8px;border-radius:5px;border:1px solid #ccc;}
-  .question-block { margin-bottom:15px; border:1px solid #ddd; padding:10px; border-radius:8px; background:#fdfdfd; }
-  .question-block label { font-weight:500; display:block; margin-bottom:5px; }
-  h2.section-title { margin-bottom:15px; color:#1976d2; }
-  .profile-item { margin-bottom: 8px; }
-  .profile-item span:first-child { font-weight: bold; margin-right:5px; }
-</style>
 </head>
 <body>
 
+<!-- Sidebar Menu -->
 <div class="menu">
   <ul class="menu-content">
     <li><a href="#" id="homeTabBtn"><span class="material-symbols-outlined">home</span><span>Home</span></a></li>
@@ -37,15 +25,14 @@
   </ul>
 </div>
 
+<!-- Main Content -->
 <div class="main-content">
 
   <!-- Home -->
   <div id="homeSection">
-    <div class="home-hero">
-      <h1>Welcome, <span id="greetingName">Student</span> 👋</h1>
-      <p class="hero-subtext">“Consistency is the key to success. Keep learning today!”</p>
-    </div>
-    <div class="home-quick-actions">
+    <h1>Welcome, <span id="greetingName">Student</span> 👋</h1>
+    <p class="hero-subtext">“Consistency is the key to success. Keep learning today!”</p>
+    <div class="home-buttons">
       <button class="btn" id="homeTestBtn">Take Test</button>
       <button class="btn" id="homeHackathonBtn">Hackathons</button>
       <button class="btn" id="homeResultsBtn">Results</button>
@@ -73,6 +60,7 @@
   <div id="testsSection" style="display:none;">
     <h2 class="section-title">Available Tests</h2>
     <div id="availableTests"></div>
+
     <div id="testAttemptSection" style="display:none;">
       <h3 id="testTitleDisplay"></h3>
       <form id="attemptTestForm"></form>
@@ -93,185 +81,221 @@
 
 </div>
 
+<!-- JavaScript -->
 <script>
 const API_BASE_STUDENT = 'http://localhost:8081/students';
 const API_BASE_TESTS   = 'http://localhost:8081/tests';
 const API_BASE_HACK    = 'http://localhost:8081/hackathons';
 const API_BASE_COURSE  = 'http://localhost:8081/courses';
-const API_BASE_FACULTY = 'http://localhost:8081/faculty';
 
-// ---------- LOGOUT ----------
 function logout() {
   localStorage.removeItem('loggedStudent');
   window.location.href='login_page.html';
 }
 
-// ---------- LOAD STUDENT ----------
-document.addEventListener('DOMContentLoaded', async ()=>{
+// Load student info
+document.addEventListener('DOMContentLoaded', async () => {
   const stored = JSON.parse(localStorage.getItem('loggedStudent'));
-  if(!stored || !stored.studentId){ logout(); return; }
-  try{
+  if (!stored || !stored.studentId) { logout(); return; }
+  try {
     const res = await fetch(`${API_BASE_STUDENT}/${stored.studentId}`);
+    if (!res.ok) throw new Error('Failed to fetch student');
     const student = await res.json();
+    student.attemptedTests = student.attemptedTests || []; // initialize attemptedTests
     document.getElementById('greetingName').innerText = student.fullName?.split(' ')[0] || "Student";
     localStorage.setItem('loggedStudent', JSON.stringify(student));
-  }catch(err){ console.error(err); alert("Failed to load student"); logout(); }
+  } catch(err) {
+    console.error("Error loading student:", err);
+    alert("Failed to load student");
+    logout();
+  }
 });
 
-// ---------- SHOW SECTION ----------
 function showSection(id){
   ['homeSection','profileSection','testsSection','hackathonSection','courseSection']
-    .forEach(sec=>document.getElementById(sec).style.display='none');
+    .forEach(sec => document.getElementById(sec).style.display='none');
   document.getElementById(id).style.display='block';
 }
 
-// ---------- PROFILE ----------
-function loadProfile(){
+// Load profile and update stats
+function loadProfile() {
   const st = JSON.parse(localStorage.getItem('loggedStudent'));
-  if(!st) return;
+  if (!st) return;
+
+  const attemptedTests = st.attemptedTests || [];
+  const totalTests = attemptedTests.length;
+  const totalScore = attemptedTests.reduce((sum, t) => sum + t.score, 0);
+  const totalMarks = attemptedTests.reduce((sum, t) => sum + (t.totalMarks || 1), 0);
+  const average = totalMarks > 0 ? ((totalScore / totalMarks) * 100).toFixed(2) : 0;
+
   document.getElementById('studentName').innerText = st.fullName || "N/A";
   document.getElementById('studentEmail').innerText = st.email || "N/A";
   document.getElementById('studentClass').innerText = st.classYear || "N/A";
   document.getElementById('studentDept').innerText = st.department || "N/A";
-  document.getElementById('testsAttempted').innerText = st.testsAttempted || 0;
-  document.getElementById('testAverage').innerText = st.testAverage || 0;
+  document.getElementById('testsAttempted').innerText = totalTests;
+  document.getElementById('testAverage').innerText = average;
   document.getElementById('hackathonsParticipated').innerText = st.hackathonsParticipated || 0;
   document.getElementById('hackathonRating').innerText = st.hackathonRating || 0;
+
   showSection('profileSection');
 }
 
-// ---------- LOAD COURSES ----------
-async function loadCourses() {
-  showSection('courseSection');
-  try {
-    const res = await fetch(API_BASE_COURSE);
-    if (!res.ok) throw new Error("Failed to fetch courses");
-    const courses = await res.json();
-    const cont = document.getElementById('courseList');
-    cont.innerHTML = '';
-    courses.forEach(c => {
-      const div = document.createElement('div');
-      div.className = 'card';
-      div.innerHTML = `
-        <h3>${c.courseName || 'N/A'}</h3>
-        <p><strong>Credits:</strong> ${c.credits || 0}</p>
-        <p><strong>Faculty:</strong> ${c.facultyName || 'Unknown'}</p>
-      `;
-      cont.appendChild(div);
-    });
-  } catch(err){ console.error(err); alert('Failed to load courses'); }
-}
-
-// ---------- LOAD TESTS ----------
-async function loadAvailableTests(){
+// Load available tests
+async function loadAvailableTests() {
   showSection('testsSection');
   document.getElementById('testAttemptSection').style.display='none';
   document.getElementById('availableTests').style.display='block';
-  try{
+  try {
     const res = await fetch(API_BASE_TESTS);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const tests = await res.json();
     const cont = document.getElementById('availableTests');
-    cont.innerHTML='';
-    tests.forEach(t=>{
+    cont.innerHTML = '';
+    if(tests.length === 0) cont.innerHTML = '<p class="no-tests">No tests available</p>';
+
+    const student = JSON.parse(localStorage.getItem('loggedStudent'));
+    const attemptedIds = student.attemptedTests.map(t => t.testId);
+
+    tests.forEach(t => {
       const div = document.createElement('div');
-      div.className='card';
-      div.innerHTML=`<h3>${t.title}</h3><p>${t.description||''}</p><button class="btn" onclick="attemptTest(${t.testId})">Attempt Test</button>`;
+      div.className = 'test-card';
+
+      let resultHTML = '';
+      if (attemptedIds.includes(t.testId)) {
+        const resObj = student.attemptedTests.find(at => at.testId === t.testId);
+        resultHTML = `<p class="result-text">Score: ${resObj.score} / ${resObj.totalMarks}, Grade: ${resObj.grade}</p>`;
+      }
+
+      div.innerHTML = `
+        <div class="test-info">
+          <h3>${t.title || "Untitled Test"}</h3>
+          <p>${t.description || "No description available"}</p>
+          ${resultHTML}
+        </div>
+        ${attemptedIds.includes(t.testId) ? '' : `<button class="btn attempt-btn" onclick="attemptTest(${t.testId})">Attempt Test</button>`}
+      `;
       cont.appendChild(div);
     });
-  }catch(err){ console.error(err); alert('Failed to load tests'); }
+  } catch(err) {
+    console.error("Error loading tests:", err);
+    alert('Failed to load tests.');
+  }
 }
 
-// ---------- ATTEMPT TEST ----------
-async function attemptTest(id){
-  try{
+// Attempt a test
+async function attemptTest(id) {
+  try {
     const res = await fetch(`${API_BASE_TESTS}/${id}`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const test = await res.json();
+
     document.getElementById('availableTests').style.display='none';
     document.getElementById('testAttemptSection').style.display='block';
-    document.getElementById('testTitleDisplay').innerText = test.title;
+    document.getElementById('testTitleDisplay').innerText = test.title || "Untitled Test";
+
     const form = document.getElementById('attemptTestForm');
-    form.innerHTML='';
-    test.questions?.forEach((q,i)=>{
+    form.innerHTML = '';
+
+    test.questions?.forEach((q,i) => {
       const block = document.createElement('div');
       block.className='question-block';
-      block.innerHTML = `<label>${i+1}. ${q.text}</label>
-        <select class="answer" required>
-          <option value="">Select</option>
-          <option value="A">${q.optionA||''}</option>
-          <option value="B">${q.optionB||''}</option>
-          <option value="C">${q.optionC||''}</option>
-          <option value="D">${q.optionD||''}</option>
-        </select>`;
+      block.innerHTML = `<label>${i+1}. ${q.questionText}</label><br>
+        ${['A','B','C','D'].map(opt => `
+          <input type="radio" name="q${q.questionId}" value="${opt}" required> ${q['option'+opt]}<br>
+        `).join('')}`;
       form.appendChild(block);
     });
+
     const btn=document.createElement('button');
     btn.type='submit'; btn.className='btn-submit'; btn.innerText='Submit Test';
     form.appendChild(btn);
-    form.onsubmit = async e=>{
+
+    form.onsubmit = async e => {
       e.preventDefault();
-      const ans = Array.from(form.querySelectorAll('.answer')).map(a=>a.value);
       const student = JSON.parse(localStorage.getItem('loggedStudent'));
-      try{
-        const r = await fetch(`${API_BASE_TESTS}/${id}/submit`,{
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ studentId:student.studentId, answers:ans })
+      const answers = test.questions.map(q => {
+        const sel = form.querySelector(`input[name="q${q.questionId}"]:checked`);
+        return { questionId: q.questionId, selectedOption: sel?.value || "" };
+      });
+
+      try {
+        const r = await fetch(`${API_BASE_TESTS}/${id}/submit`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ studentId: student.studentId, answers })
         });
-        if(r.ok){
-          const result = await r.json();
-          alert(`You scored ${result.score} / ${test.totalMarks}`);
-          document.getElementById('testAttemptSection').style.display='none';
-          document.getElementById('availableTests').style.display='block';
-          loadAvailableTests();
-        }else throw new Error();
-      }catch(err){ console.error(err); alert('Submit failed'); }
+        if(!r.ok) throw new Error('Submit failed');
+        const result = await r.json();
+
+        // Save attempt in localStorage
+        student.attemptedTests = student.attemptedTests || [];
+        const index = student.attemptedTests.findIndex(at => at.testId === id);
+        if (index !== -1) student.attemptedTests[index] = { testId: id, score: result.score, grade: result.grade, totalMarks: result.totalMarks };
+        else student.attemptedTests.push({ testId: id, score: result.score, grade: result.grade, totalMarks: result.totalMarks });
+        localStorage.setItem('loggedStudent', JSON.stringify(student));
+
+        alert(`You scored ${result.score} / ${result.totalMarks}, Grade: ${result.grade}`);
+        document.getElementById('testAttemptSection').style.display='none';
+        loadAvailableTests();
+        loadProfile();
+      } catch(err){ console.error(err); alert('Submit failed'); }
     };
-  }catch(err){ console.error(err); alert('Failed to load test'); }
+
+  } catch(err) {
+    console.error("Error loading test:", err);
+    alert('Failed to load test');
+  }
 }
 
-// ---------- HACKATHONS ----------
-async function loadStudentHackathons(){
+// Hackathons
+async function loadStudentHackathons() {
   const st = JSON.parse(localStorage.getItem('loggedStudent'));
   if(!st) return;
-  try{
+  try {
     const res = await fetch(API_BASE_HACK);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const hacks = await res.json();
     const cont = document.getElementById('hackathonListStudent');
-    cont.innerHTML='';
-    hacks.forEach(h=>{
+    cont.innerHTML = '';
+    hacks.forEach(h => {
       const joined = h.acceptedStudents?.includes(st.studentId);
       const div = document.createElement('div');
       div.className='card';
-      div.innerHTML=`<h3>${h.title}</h3><p>${h.description||''}</p>
-        <button class="btn" onclick="joinHackathon(${h.id})" ${joined?'disabled':''}>${joined?'Joined':'Join'}</button>`;
+      div.innerHTML = `
+        <h3>${h.title}</h3>
+        <p>${h.description||''}</p>
+        <button class="btn" onclick="joinHackathon(${h.id})" ${joined?'disabled':''}>
+          ${joined?'Joined':'Join'}
+        </button>`;
       cont.appendChild(div);
     });
-  }catch(err){ console.error(err); alert('Failed to load hackathons'); }
+  } catch(err){ console.error(err); alert('Failed to load hackathons'); }
 }
 
-async function joinHackathon(id){
+async function joinHackathon(id) {
   const st = JSON.parse(localStorage.getItem('loggedStudent'));
-  try{
+  try {
     await fetch(`${API_BASE_HACK}/join`,{
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ hackathonId:id, studentId:st.studentId })
     });
     loadStudentHackathons();
-  }catch(err){ console.error(err); alert('Failed to join hackathon'); }
+  } catch(err){ console.error(err); alert('Failed to join hackathon'); }
 }
 
-// ---------- EVENT HANDLERS ----------
+/* ====== EVENT LISTENERS ====== */
 document.getElementById('profileTabBtn').addEventListener('click', loadProfile);
 document.getElementById('homeTabBtn').addEventListener('click',()=>showSection('homeSection'));
-document.getElementById('homeTestBtn').addEventListener('click',loadAvailableTests);
-document.getElementById('testsTabBtn').addEventListener('click',loadAvailableTests);
-document.getElementById('homeHackathonBtn').addEventListener('click',()=>{showSection('hackathonSection');loadStudentHackathons();});
-document.getElementById('hackathonTabBtn').addEventListener('click',()=>{showSection('hackathonSection');loadStudentHackathons();});
-document.getElementById('homeResultsBtn').addEventListener('click',()=>window.location.href='performance.html');
-document.getElementById('homeProfileBtn').addEventListener('click',loadProfile);
-document.getElementById('homeCampusConnectBtn').addEventListener('click',()=>window.location.href='campus_connect.html');
-document.getElementById('updateProfileBtn').addEventListener('click',()=>window.location.href='update_profile.html');
-document.getElementById('homeCourseBtn').addEventListener('click',loadCourses);
-document.getElementById('courseTabBtn').addEventListener('click',loadCourses);
+document.getElementById('homeTestBtn').addEventListener('click', loadAvailableTests);
+document.getElementById('testsTabBtn').addEventListener('click', loadAvailableTests);
+document.getElementById('homeHackathonBtn').addEventListener('click', ()=>{showSection('hackathonSection'); loadStudentHackathons();});
+document.getElementById('hackathonTabBtn').addEventListener('click', ()=>{showSection('hackathonSection'); loadStudentHackathons();});
+document.getElementById('homeResultsBtn').addEventListener('click', ()=>window.location.href='performance.html');
+document.getElementById('homeProfileBtn').addEventListener('click', loadProfile);
+document.getElementById('homeCampusConnectBtn').addEventListener('click', ()=>window.location.href='campus_connect.html');
+document.getElementById('updateProfileBtn').addEventListener('click', ()=>window.location.href='update_profile.html');
 </script>
+
 </body>
 </html>
