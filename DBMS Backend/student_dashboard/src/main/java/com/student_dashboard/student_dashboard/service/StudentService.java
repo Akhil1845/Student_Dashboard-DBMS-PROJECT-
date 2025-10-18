@@ -16,8 +16,6 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    // -------- Basic CRUD --------
-
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
@@ -38,32 +36,12 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
-    public Optional<Student> findByEmailAndPassword(String email, String password) {
-        return studentRepository.findByEmailAndPassword(email, password);
-    }
-
-    // -------- NEW: Update only student stats --------
-    public Optional<Student> updateStudentStats(
-            int id,
-            Integer testsAttempted,
-            Double testAverage,
-            Integer hackathonsParticipated,
-            Double hackathonRating) {
-
-        Optional<Student> optionalStudent = studentRepository.findById(id);
-        if (optionalStudent.isEmpty()) {
-            return Optional.empty();
+    // ✅ Login check
+    public Optional<Student> login(String email, String password) {
+        Optional<Student> studentOpt = studentRepository.findByEmail(email);
+        if (studentOpt.isPresent() && studentOpt.get().getPassword().equals(password)) {
+            return studentOpt;
         }
-
-        Student student = optionalStudent.get();
-
-        // Update only the stats fields
-        if (testsAttempted != null) student.setTestsAttempted(testsAttempted);
-        if (testAverage != null) student.setTestAverage(testAverage);
-        if (hackathonsParticipated != null) student.setHackathonsParticipated(hackathonsParticipated);
-        if (hackathonRating != null) student.setHackathonRating(hackathonRating);
-
-        Student saved = studentRepository.save(student);
-        return Optional.of(saved);
+        return Optional.empty();
     }
 }
