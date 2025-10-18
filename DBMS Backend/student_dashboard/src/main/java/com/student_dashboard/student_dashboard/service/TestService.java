@@ -19,63 +19,79 @@ public class TestService {
         this.testRepository = testRepository;
     }
 
-    // ✅ Fetch all tests
+    // ---------------- Get All Tests ----------------
+    @Transactional(readOnly = true)
     public List<Test> getAllTests() {
-        return testRepository.findAll();
+        List<Test> tests = testRepository.findAll();
+        tests.forEach(this::initializeTest);
+        return tests;
     }
 
-    // ✅ Fetch single test by ID
-    public Test getTestById(int id) {
-        return testRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Test not found with ID: " + id));
-    }
-
-    // ✅ Fetch tests by faculty ID
+    // ---------------- Get Tests by Faculty ID ----------------
+    @Transactional(readOnly = true)
     public List<Test> getTestsByFacultyId(int facultyId) {
-        return testRepository.findByFaculty_FacultyId(facultyId);
+        List<Test> tests = testRepository.findByFaculty_FacultyId(facultyId);
+        tests.forEach(this::initializeTest);
+        return tests;
     }
 
-    // ✅ Save test along with its questions
+    // ---------------- Get Single Test by ID ----------------
+    @Transactional(readOnly = true)
+    public Test getTestById(int id) {
+        Test test = testRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Test not found with ID: " + id));
+        initializeTest(test);
+        return test;
+    }
+
+    // ---------------- Save Test with Questions ----------------
     @Transactional
     public Test saveTest(Test test) {
-        if (test == null)
+        if (test == null) {
             throw new IllegalArgumentException("Test cannot be null");
+        }
 
-        // Validate questions
+        // Filter valid questions and link them to test
         List<Question> validQuestions = new ArrayList<>();
         if (test.getQuestions() != null) {
             for (Question q : test.getQuestions()) {
                 if (q.getQuestionText() == null || q.getQuestionText().trim().isEmpty()) continue;
-
                 if (q.getCorrectOption() == null || q.getCorrectOption().trim().isEmpty()) {
-                    throw new IllegalArgumentException("Question must have a correct option: " + q.getQuestionText());
+                    throw new IllegalArgumentException("Each question must have a correct option: " + q.getQuestionText());
                 }
-
-                // 🔗 Ensure bidirectional link
-                q.setTest(test);
+                q.setTest(test); // Set bidirectional relationship
                 validQuestions.add(q);
             }
         }
-
-        // Attach only valid questions
         test.setQuestions(validQuestions);
 
-        // ✅ Save (Test entity must have CascadeType.ALL on questions)
-        Test saved = testRepository.save(test);
-
-        // Optional: flush to ensure immediate write to DB
-        // testRepository.flush();
-
-        return saved;
+        // Save test (CascadeType.ALL ensures questions are saved)
+        return testRepository.save(test);
     }
 
-    // ✅ Delete test safely
+    // ---------------- Delete Test ----------------
     @Transactional
     public boolean deleteTest(int id) {
-        if (!testRepository.existsById(id))
-            return false;
-
+        if (!testRepository.existsById(id)) return false;
         testRepository.deleteById(id);
         return true;
     }
-}
+
+    // ---------------- Helper to Initialize Test ----------------
+    private void initializeTest(Test test) {
+        // Ensure questions list is initialized
+        if (test.getQuestions() == null) {
+            test.setQuestions(new ArrayList<>());
+        } else {
+            test.getQuestions().size(); // Force lazy load
+        }
+
+        // Avoid null issues when serializing to frontend
+        if (test.getCourse() != null && test.getCourse().getCourseName() == null) {
+            test.setCourse(null);
+        }
+
+
+        }
+    }
+
